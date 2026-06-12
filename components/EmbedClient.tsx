@@ -60,7 +60,7 @@ const EmbedClient = ({ ownerId }: { ownerId: string }) => {
 
           <ol
             className="space-y-3 text-sm text-zinc-600 list-decimal list-inside"
-            type=""
+      
           >
             <li>Copy the embed script</li>
             <li>Paste it before the closing body tag</li>

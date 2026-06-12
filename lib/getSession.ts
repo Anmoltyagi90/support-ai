@@ -1,24 +1,23 @@
 import { cookies } from "next/headers";
-import { scalekit } from "./scalekit";
-
-type TokenPayload = {
-  sub: string;
-};
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "./authCookies";
+import { getUserFromAccessToken, resolveSessionTokens } from "./refreshSession";
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
 
-  if (!token) {
+  if (!accessToken && !refreshToken) {
     return null;
   }
 
   try {
-    const result = (await scalekit.validateToken(token)) as TokenPayload;
+    const session = await resolveSessionTokens(accessToken, refreshToken);
+    if (!session) {
+      return null;
+    }
 
-    const user = await scalekit.user.getUser(result.sub);
-
-    return user;
+    return await getUserFromAccessToken(session.accessToken);
   } catch (error) {
     console.error("Session validation failed:", error);
     return null;

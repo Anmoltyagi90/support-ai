@@ -7,49 +7,50 @@ import axios from "axios";
 
 const DashboardClient = ({ ownerId }: { ownerId: string }) => {
   const navigate = useRouter();
-  const [busniessName, setBuniessName] = useState("");
+  const [businessName, setBusinessName] = useState("");
   const [supportEmail, setSupportEmail] = useState("");
-  const [knowledgeBase, setKnowledgeBase] = useState("");
+  const [knowledge, setKnowledge] = useState("");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const handleSettings = async () => {
     setLoading(true);
     try {
-      const result = await axios.post("/settings", {
+      await axios.post("/settings", {
         ownerId,
-        businessName: busniessName,
-        supportEmail,
-        knowledge: knowledgeBase,
+        businessName: businessName.trim(),
+        supportEmail: supportEmail.trim(),
+        knowledge: knowledge.trim(),
       });
-      console.log(result.data);
-      setLoading(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.log(error);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (ownerId) {
-      const handleGetDetails = async () => {
-        try {
-          const result = await axios.post("/settings/get", {
-            ownerId,
-          });
-          setBuniessName(result.data.businessName ?? "");
-          setSupportEmail(result.data.supportEmail ?? "");
-          setKnowledgeBase(result.data.knowledge ?? "");
-        } catch (error) {
-          console.log(error);
-          setLoading(false);
-        }
-      };
-      handleGetDetails();
+    if (!ownerId) {
+      return;
     }
+
+    const handleGetDetails = async () => {
+      try {
+        const result = await axios.post("/settings/get", { ownerId });
+        const data = result.data ?? {};
+        setBusinessName(data.businessName ?? "");
+        setSupportEmail(data.supportEmail ?? "");
+        setKnowledge(data.knowledge ?? "");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    handleGetDetails();
   }, [ownerId]);
+
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900">
       <motion.div
@@ -60,7 +61,7 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div
-            className="text-lg font-semibold tracking-tight"
+            className="text-lg font-semibold tracking-tight cursor-pointer"
             onClick={() => navigate.push("/")}
           >
             Support <span className="text-zinc-400">AI</span>
@@ -69,7 +70,6 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
           <button
             onClick={() => navigate.push("/embed")}
             className="px-4 py-2 rounded-lg border border-zinc-300 text-sm hover:bg-zinc-100 transition"
-          
           >
             Embed ChartBot
           </button>
@@ -81,25 +81,25 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
           <div className="mb-10">
             <h1 className="text-2xl font-semibold">ChartBot Settings</h1>
             <p className="text-zinc-500 mt-1">
-              Manage your AI chartbot knowledge and busniess details
+              Manage your AI chatbot knowledge and business details
             </p>
           </div>
 
           <div className="mb-10">
-            <h1 className="text-lg font-medium mb-4">Busniess Details</h1>
+            <h2 className="text-lg font-medium mb-4">Business Details</h2>
 
             <div className="space-y-4">
               <input
                 type="text"
                 className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80"
-                placeholder="Busniess Name"
-                onChange={(e) => setBuniessName(e.target.value)}
-                value={busniessName}
+                placeholder="Business Name"
+                onChange={(e) => setBusinessName(e.target.value)}
+                value={businessName}
               />
               <input
-                type="text"
+                type="email"
                 className="w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80"
-                placeholder="Suppory Email"
+                placeholder="Support Email"
                 onChange={(e) => setSupportEmail(e.target.value)}
                 value={supportEmail}
               />
@@ -107,15 +107,14 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
           </div>
 
           <div className="mb-10">
-            <h1 className="text-lg font-medium mb-4">Knowledge Base</h1>
+            <h2 className="text-lg font-medium mb-4">Knowledge Base</h2>
             <p className="text-sm text-zinc-500 mb-4">
               Add FAQs, policies, delivery info, refunds, etc.
             </p>
 
-            <div className="space-y-4">
-              <textarea
-                className="w-full h-54 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80"
-                placeholder={`Example:Example:
+            <textarea
+              className="w-full h-54 rounded-xl border border-zinc-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/80"
+              placeholder={`Example:
 
 • Return policy: 7 days return available
 • Delivery time: 3-5 working days
@@ -125,10 +124,9 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
 • Contact: support@company.com
 • Office address: New Delhi, India
 • Frequently asked questions and business policies`}
-                onChange={(e) => setKnowledgeBase(e.target.value)}
-                value={knowledgeBase}
-              />
-            </div>
+              onChange={(e) => setKnowledge(e.target.value)}
+              value={knowledge}
+            />
           </div>
 
           <div className="flex items-center gap-5">
@@ -139,7 +137,7 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
               onClick={handleSettings}
               className="px-7 py-3 rounded-xl bg-black text-white text-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60"
             >
-              {loading ? "saving...." : "Save"}
+              {loading ? "Saving..." : "Save"}
             </motion.button>
             {saved && (
               <motion.span
@@ -147,7 +145,7 @@ const DashboardClient = ({ ownerId }: { ownerId: string }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-sm font-medium text-emerald-600"
               >
-                ✔️ Setting Saved
+                Settings saved
               </motion.span>
             )}
           </div>

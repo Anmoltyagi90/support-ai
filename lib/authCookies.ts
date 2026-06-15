@@ -16,16 +16,19 @@ const baseCookieOptions = {
 export function setAuthCookies(
   response: NextResponse,
   accessToken: string,
-  refreshToken: string,
+  refreshToken?: string,
 ) {
   response.cookies.set(ACCESS_TOKEN_COOKIE, accessToken, {
     ...baseCookieOptions,
     maxAge: ONE_HOUR,
   });
-  response.cookies.set(REFRESH_TOKEN_COOKIE, refreshToken, {
-    ...baseCookieOptions,
-    maxAge: THIRTY_DAYS,
-  });
+
+  if (refreshToken) {
+    response.cookies.set(REFRESH_TOKEN_COOKIE, refreshToken, {
+      ...baseCookieOptions,
+      maxAge: THIRTY_DAYS,
+    });
+  }
 }
 
 export function clearAuthCookies(response: NextResponse) {

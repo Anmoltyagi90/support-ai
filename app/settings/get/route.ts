@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
     await connectDb();
     const settings = await Settings.findOne({ ownerId });
 
-    return NextResponse.json(settings);
+    return NextResponse.json(
+      settings ?? { businessName: "", supportEmail: "", knowledge: "" },
+    );
   } catch (error) {
     return NextResponse.json(
       {

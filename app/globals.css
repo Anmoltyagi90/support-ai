@@ -1,2 +1,10 @@
 @import "tailwindcss";
 
+:root {
+  --font-geist-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-geist-mono: ui-monospace, monospace;
+}
+
+body {
+  font-family: var(--font-geist-sans);
+}

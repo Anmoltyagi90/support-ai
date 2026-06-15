@@ -13,13 +13,6 @@ export async function GET(req: NextRequest) {
 
   const session = await scalekit.authenticateWithCode(code, redirectUri);
 
-  if (!session.refreshToken) {
-    return NextResponse.json(
-      { message: "refresh token missing from auth response" },
-      { status: 500 },
-    );
-  }
-
   const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}`);
   setAuthCookies(response, session.accessToken, session.refreshToken);
   return response;
